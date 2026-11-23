@@ -1,0 +1,13 @@
+{
+  "name": "laser-lab-robot-outbreak",
+  "version": "0.2.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node scripts/serve.mjs",
+    "start": "node scripts/serve.mjs",
+    "check": "node --check dist/play.js && node --check dist/game.js && node --check dist/scene-palette.js && node --check dist/camera.js && node --check dist/waves.js && node --check dist/crowd.js && node --check dist/robot-fall.js && node --check dist/app.js && node --check dist/tracking.js && node --check dist/spot-worker.js && node --check dist/frame-worker.js && node --check dist/vision-channel.js && node --check dist/scene-batching.js && node --check dist/debug.js && node --check dist/debug-source.js && node --check dist/debug-spot.js && node --check dist/debug-worker.js && node --check dist/debug-state.js && node --check dist/laser-spot.js && node --check dist/core-halo.js && node --check dist/isolation.js && node --check dist/isolation-spot.js && node --check dist/isolation-worker.js && node --check dist/games/catalog.js && node --check scripts/serve.mjs",
+    "test": "node scripts/verify-game.mjs && node scripts/verify-tracking.mjs && node scripts/verify-camera.mjs && node scripts/verify-capture-flow.mjs && node scripts/verify-vision-channel.mjs && node scripts/verify-debug.mjs && node scripts/verify-arcade.mjs",
+    "build": "npm run check"
+  }
+}

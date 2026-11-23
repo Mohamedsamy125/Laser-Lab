@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#101411">
+<title>Laser Lab · مختبر التصويب</title>
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="./style.css?v=22">
+</head>
+<body>
+<header class="topbar">
+ <a class="brand" href="./" aria-label="Laser Lab"><span class="brand-mark">✳</span><span dir="ltr">LASER LAB</span><span class="brand-sub">مختبر التصويب</span></a>
+ <div class="top-actions"><span class="local-tag"><i></i> معالجة محلية</span><button id="fullscreen" class="icon-button">⛶ <span>ملء الشاشة</span></button></div>
+</header>
+<main>
+ <div class="intro"><div><p class="eyebrow">CAMERA → CALIBRATION → TARGET</p><h1>من نقطة ضوء، لضربة دقيقة.</h1><p>اختبر الليزر، عاير حدود العرض، وجرّب التصويب.</p></div><div id="sourceBadge" class="source-badge">الكاميرا متوقفة</div></div>
+ <div class="workspace">
+  <section class="camera-card card">
+   <div class="card-heading"><div class="heading-label"><i id="cameraLight" class="signal"></i><h2>رؤية الكاميرا</h2></div><span id="videoSize" class="mono">— × —</span></div>
+   <div id="cameraSurface" class="camera-surface">
+    <video id="video" playsinline muted autoplay></video>
+    <canvas id="cameraDisplay"></canvas><canvas id="cameraOverlay"></canvas>
+    <div id="cameraPlaceholder" class="placeholder"><span class="camera-symbol">◉</span><h3>وجّه الكاميرا ناحية سطح التصويب</h3><p>اختار الكاميرا واسمح باستخدامها لبدء التتبّع.</p><button id="startHero" class="primary">تشغيل الكاميرا <span>↗</span></button><button id="demoHero" class="text-button">تجربة محاكاة بدون كاميرا</button></div>
+    <div id="manualHint" class="manual-hint" hidden></div>
+    <div class="camera-bottom"><span id="spotBadge" class="detection-badge">بانتظار الكاميرا</span><span id="coordinate" class="mono">X — &nbsp; Y —</span></div>
+   </div>
+   <div class="camera-footer"><span id="cameraMessage" role="status" aria-live="polite">الفيديو يتحلل على جهازك.</span><span id="fps" class="mono">— FPS</span></div>
+  </section>
+  <section class="range-card card">
+   <div class="card-heading"><div class="heading-label"><span class="blue-dot"></span><h2>مساحة العرض</h2></div><button id="rangeFullscreen" class="small-button">⛶ تكبير العرض</button></div>
+   <div id="projectionShell" class="projection-shell">
+    <div class="range-toolbar"><span id="calibrationBadge">المعايرة مطلوبة</span><button id="exitRange" class="small-button" hidden>إغلاق العرض</button></div>
+    <div id="projection" class="projection">
+     <canvas id="game"></canvas><canvas id="gameOverlay"></canvas>
+     <span class="corner tl"></span><span class="corner tr"></span><span class="corner br"></span><span class="corner bl"></span>
+    </div>
+    <div class="range-score"><span>الإصابات <b id="score" class="mono">00</b></span><span id="rangeHint">كل ظهور جديد للنقطة يُحسب ضربة واحدة</span><button id="resetScore" class="text-button">تصفير</button></div>
+   </div>
+   <div class="calibration-actions"><button id="autoCalibrate" class="secondary" disabled>التقاط الفريم تلقائيًا</button><button id="manualCalibrate" class="secondary" disabled>تحديد الأركان يدويًا</button></div>
+   <div class="calibration-footer"><span id="cvStatus" class="micro">تحميل OpenCV…</span><button id="resetCalibration" class="text-button">إلغاء المعايرة</button></div>
+  </section>
+ </div>
+ <section class="controls card">
+  <div class="control-group camera-select"><label for="cameraSelect">الكاميرا</label><div class="inline"><select id="cameraSelect"><option value="">تلقائي · الخلفية على الموبايل</option></select><button id="startCamera" class="primary">تشغيل</button></div></div>
+  <div class="control-group"><label for="colorMode">وضع كشف الليزر</label><select id="colorMode"><option value="red-halo" selected>أحمر / وردي · قلب وهالة</option><option value="auto">تلقائي · أحمر وأخضر</option><option value="red">أحمر / وردي · الكشف السابق</option><option value="fast-red">أحمر سريع · بكسل واحد يكفي</option><option value="green">أخضر</option></select></div>
+  <div class="control-group sensitivity"><label for="sensitivity">الحساسية <output id="sensitivityValue">50%</output></label><input id="sensitivity" type="range" min="0" max="100" value="50"></div>
+  <div class="control-group"><label for="resolution">دقة التحليل</label><select id="resolution"><option value="480">480p · أخف</option><option value="640" selected>640px · متوازن</option><option value="960">960px · نقطة أصغر</option></select></div>
+  <div class="control-group switches"><label class="check"><input id="mirror" type="checkbox"><span>عكس المعاينة</span></label><label class="check"><input id="showFrame" type="checkbox" checked><span>إظهار الفريم الأزرق</span></label></div>
+ </section>
+ <footer class="bottom-note"><span>ثبّت الكاميرا والبروجكتور أثناء المعايرة والتصويب.</span><button id="demoToggle" class="text-button">تشغيل المحاكاة</button></footer>
+ <p id="notification" class="notification" role="status" hidden></p>
+</main>
+<script type="module" src="./app.js?v=22"></script>
+</body>
+</html>

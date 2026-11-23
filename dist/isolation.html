@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#081b24">
+<title>Laser Lab · تتبّع نقطة الليزر</title>
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="./debug.css?v=8">
+</head>
+<body>
+<header class="top">
+  <div><h1 id="trackingTitle">تتبّع نقطة الليزر</h1><p id="trackingDescription">الدائرة بتتحرّك مع نقطة الليزر وهي ظاهرة في الكاميرا.</p></div>
+  <div class="actions"><button id="start" class="primary">تشغيل الكاميرا</button><button id="demo">محاكاة بدون كاميرا</button><a id="repoMode" href="./isolation.html?mode=repo">تجربة ريبو الجديد</a><a id="standardMode" href="./isolation.html" hidden>التتبّع العادي</a><a href="./debug.html">اختبار الألوان</a></div>
+</header>
+<main>
+  <section class="vision">
+    <div class="section-label"><strong>المعاينة</strong><span id="sourceStatus">الكاميرا متوقفة</span></div>
+    <div id="stage" class="stage">
+      <video id="video" autoplay playsinline muted></video><canvas id="demoView" width="640" height="360" hidden></canvas>
+      <canvas id="overlay" aria-label="علامة نقطة الليزر"></canvas>
+      <div id="empty">شغّل الكاميرا ووجّهها ناحية نقطة الليزر.</div>
+    </div>
+    <p id="error" class="error" role="alert" hidden></p>
+    <div class="stats" style="grid-template-columns:repeat(3,1fr)">
+      <div><span>صور التحليل في الثانية</span><strong id="fps" dir="ltr">—</strong></div>
+      <div><span>زمن التحليل بالملّي ثانية</span><strong id="analysisTime" dir="ltr">—</strong></div>
+      <div><span>مكان النقطة بالبكسل</span><strong id="coordinates" dir="ltr">—</strong></div>
+    </div>
+  </section>
+  <aside class="controls">
+    <p id="status" class="note" role="status">شغّل الكاميرا أو المحاكاة أولًا.</p>
+    <label for="sensitivity">الحساسية <output id="sensitivityValue">50%</output></label>
+    <input id="sensitivity" type="range" min="0" max="100" value="50">
+    <button id="exposureToggle" hidden>خفض تعريض الكاميرا</button>
+    <p id="glareNote" class="note" hidden>لو الشاشة ظاهرة بيضا بالكامل في المعاينة، قلّل سطوعها عشان تفاصيل النقطة تبان.</p>
+    <p class="note">لو النقطة ضعيفة في الكاميرا، جرّب تزود الحساسية.</p>
+  </aside>
+</main>
+<script type="module" src="./isolation.js?v=3"></script>
+</body>
+</html>

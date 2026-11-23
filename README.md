@@ -1,6 +1,6 @@
-# Laser Lab / Robot Outbreak
+# Laser Lab
 
-نسخة مشروع الويب بـNode.js محليًا وإعداد Vercel جاهز. اللعبة بتفتح من `/`، ومختبر التتبّع من `/lab.html`.
+منصة ألعاب ويب بالليزر وكاميرا الموبايل، مع ماوس ولمس للتجربة السريعة. الصفحة الرئيسية مكتبة ألعاب، وكل لعبة لها فولدر مستقل للكود والأصول.
 
 ```sh
 npm run dev
@@ -8,7 +8,56 @@ npm test
 npm run build
 ```
 
-افتح `http://localhost:3000` للتجربة المحلية.
+افتح `http://localhost:3000` واختار لعبة. Node.js 24 يكفي؛ مكتبات المتصفح مرفقة محليًا في `dist/vendor/` ولا توجد حزم npm تحتاج تثبيتًا.
 
-- [مرجع المشروع، التشغيل والدمج](LASER_LAB_HANDOFF.md)
-- [برومبت لإنشاء لعبة جديدة](NEW_LASER_GAME_PROMPT.md)
+## تنظيم الألعاب
+
+```text
+dist/
+  index.html                 مكتبة الألعاب
+  play.html                  مشغّل الألعاب المشترك
+  camera.js, tracking.js     الكاميرا والتتبّع المشتركان
+  games/
+    catalog.js               تسجيل الألعاب
+    robot-outbreak/          اللعبة الحالية: الكود وكل أصولها
+      manifest.js            الاسم والوصف والغلاف
+      game.js
+      assets.json
+      assets/
+        characters/
+        animations/
+        environments/
+        textures/
+        audio/
+        images/
+```
+
+لإنشاء فولدر لعبة جديدة:
+
+```sh
+npm run game:new -- pulse-targets "Pulse Targets"
+```
+
+الأمر ينشئ الفولدرات ويسجل اللعبة كمسودة. ضع الداتا داخل الفولدرات المناسبة، واكتب دور كل ملف في `assets.json`. نربط الأصول بمنطق اللعبة بعد استلامها. بعد اكتمالها غيّر `status` في `manifest.js` إلى `ready` لتظهر في القائمة. لا يعيد الأمر الكتابة فوق فولدر لعبة موجود.
+
+## النشر على GitHub Pages
+
+1. ارفع المشروع إلى مستودع عام على فرع `main`.
+2. اختر **GitHub Actions** في **Settings → Pages → Source**.
+3. الـworkflow الموجود في `.github/workflows/pages.yml` يفحص المشروع وينشر `dist/` بعد كل push ناجح.
+
+الرابط يكون `https://<username>.github.io/<repository>/`. لا يحتاج المشروع إلى خادم Node في الاستضافة أو أسرار نشر إضافية. إعداد Vercel الموجود يظل متاحًا أيضًا.
+
+## الصفحات
+
+| الصفحة | الاستخدام |
+| --- | --- |
+| `/` | مكتبة الألعاب |
+| `/play.html?game=robot-outbreak` | Robot Outbreak |
+| `/debug.html` | اختبار الكاميرا والليزر |
+| `/lab.html` | مختبر التتبّع والمعايرة |
+| `/isolation.html` | مقارنة كشف الليزر |
+| `/display.html` | لوحة اختبار التصويب |
+
+- [مرجع المشروع والتشغيل وعقد دمج الألعاب](LASER_LAB_HANDOFF.md)
+- [تعليمات تسليم لعبة جديدة](NEW_LASER_GAME_PROMPT.md)

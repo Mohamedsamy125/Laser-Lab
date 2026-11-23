@@ -5,6 +5,10 @@ import { extname, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const root = await realpath(fileURLToPath(new URL('../dist/', import.meta.url)));
+const basePath = (process.env.LASER_LAB_BASE_PATH || '').replace(/\/+$/, '');
+if (basePath && (!basePath.startsWith('/') || basePath.includes('..') || /[?#\\]/.test(basePath))) {
+  throw new Error('LASER_LAB_BASE_PATH must be a path such as /Laser-Lab');
+}
 const types = new Map(Object.entries({
   '.html': 'text/html; charset=utf-8',
   '.css': 'text/css; charset=utf-8',
@@ -37,7 +41,12 @@ const server = createServer(async (request, response) => {
   }
 
   try {
-    const pathname = decodeURIComponent(new URL(request.url, 'http://localhost').pathname);
+    let pathname = decodeURIComponent(new URL(request.url, 'http://localhost').pathname);
+    if (basePath) {
+      if (pathname === basePath) { response.writeHead(302, { Location: basePath + '/' }).end(); return; }
+      if (!pathname.startsWith(basePath + '/')) return respond(response, 404);
+      pathname = pathname.slice(basePath.length);
+    }
     const candidate = resolve(root, '.' + (pathname.endsWith('/') ? pathname + 'index.html' : pathname));
     if (!candidate.startsWith(root + sep)) return respond(response, 404);
     const file = await realpath(candidate);
@@ -66,5 +75,5 @@ const server = createServer(async (request, response) => {
 
 const host = process.env.LASER_LAB_HOST || 'localhost';
 server.listen(Number(process.env.PORT || 3000), host, () => {
-  console.log(`Laser Lab · http://${host}:${server.address().port}`);
+  console.log(`Laser Lab · http://${host}:${server.address().port}${basePath}/`);
 });

@@ -1,15 +1,25 @@
-// Add the slug used by the folder name and the title and description shown by Laser Lab.
-const games = new Map([
-  // ['pulse-targets', { title: 'Pulse Targets', description: 'تحدّي سرعة التصويب' }],
-]);
+import robotOutbreak from './robot-outbreak/manifest.js';
+// GAME_IMPORTS — added by npm run game:new
+
+const entries = [
+  robotOutbreak,
+  // GAME_ENTRIES — added by npm run game:new
+];
+const games = new Map();
+for (const entry of entries) {
+  if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(entry.slug) || games.has(entry.slug)) {
+    throw new Error('Invalid or duplicate game slug: ' + entry.slug);
+  }
+  games.set(entry.slug, entry);
+}
 
 export function findGame(slug) {
   const entry = games.get(slug);
-  return entry ? { ...entry, slug } : null;
+  return entry && entry.status !== 'draft' ? { ...entry, slug } : null;
 }
 
 export function listGames() {
-  return Array.from(games.keys(), findGame);
+  return Array.from(games.keys(), findGame).filter(Boolean);
 }
 
 export class ArcadeGame {

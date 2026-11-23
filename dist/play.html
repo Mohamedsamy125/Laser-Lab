@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#07151d">
+<title>Laser Lab · Robot Outbreak</title><meta name="description" content="لعبة موجات روبوتات ثلاثية الأبعاد، بالليزر وكاميرا الموبايل أو بالماوس واللمس."><link rel="icon" href="data:,"><link rel="stylesheet" href="./game.css?v=library-1">
+</head>
+<body class="menu-open">
+<main id="playfield" class="playfield" aria-label="ساحة اللعب">
+ <div id="gameMount" hidden></div>
+ <canvas id="world" aria-label="المرحلة ثلاثية الأبعاد"></canvas><canvas id="aim" aria-hidden="true"></canvas>
+ <div class="inner-rim" aria-hidden="true"></div><div id="damage" class="damage" aria-hidden="true"></div>
+ <header class="hud-top">
+  <div class="wordmark" dir="ltr"><span class="mark">⫴</span><span>LASER<span class="thin">LAB</span><small id="gameWordmark">ROBOT OUTBREAK</small></span></div>
+  <div class="wave-info"><span id="location">قاعة المعايرة</span><strong dir="ltr">WAVE <b id="wave">01</b><span> / 05</span></strong></div>
+  <nav class="tools"><a href="./" class="icon" aria-label="قائمة الألعاب" title="قائمة الألعاب">⌂</a><button id="cameraPreview" class="icon camera-live" aria-label="الكاميرا متوقفة — فتح المعاينة" title="فتح الكاميرا ومعاينتها">◎</button><button id="pause" class="icon" aria-label="إيقاف مؤقت" title="إيقاف مؤقت">Ⅱ</button><button id="sceneLookToggle" class="icon" aria-label="مظهر المشهد" title="مظهر المشهد">◐</button><button id="fullscreen" class="icon" aria-label="ملء الشاشة" title="ملء الشاشة">⛶</button><button id="settings" class="icon" aria-label="الكاميرا والإعدادات" title="الكاميرا والإعدادات">⚙︎</button></nav>
+ </header>
+ <div id="waveBanner" class="wave-banner" hidden><span id="bannerLabel">استعد للموجة</span><strong id="bannerNumber">3</strong><small id="bannerSub"></small></div>
+ <div class="hud-bottom">
+  <div class="health-block"><div class="stat-label"><span>سلامة النظام</span><span dir="ltr"><b id="health">100</b>%</span></div><div class="health-track"><i id="healthFill"></i></div><small id="inputStatus">ماوس / لمس</small></div>
+  <div class="enemy-counter"><span>في الساحة <b id="alive">0</b></span><i></i><span>في الانتظار <b id="pending">10</b></span><small><b id="defeated">0</b> / <b id="total">10</b> تم القضاء عليهم</small></div>
+  <div class="ammo-block"><span class="score-label">النقاط <b id="score">0000</b></span><button id="reload" aria-label="إعادة التعبئة"><strong dir="ltr"><span id="ammo">12</span><small> / 12</small></strong><span id="reloadLabel">إعادة التعبئة · R</span></button></div>
+ </div>
+ <div id="perfHud" class="perf-hud" dir="ltr"><span id="perfReadout">GAME — FPS · CAM — FPS</span><span id="trackingHud" dir="rtl" hidden></span></div>
+ <div id="shotLabel" class="shot-label" aria-live="polite"></div>
+ <section id="menu" class="menu">
+  <div class="menu-content">
+   <p class="eyebrow" dir="ltr"><i></i> CALIBRATION LAB / CONTAINMENT BREACH</p>
+   <h1 id="menuTitle" dir="ltr">ROBOT<br><span>OUTBREAK.</span></h1>
+   <p id="menuDescription" class="menu-description">خمسة مواقع. موجات متصاعدة.<br>صوّب على الروبوتات قبل ما توصل لك.</p>
+   <div class="menu-line"><span><b>05</b> مواقع</span><span><b>10</b> أعداء في البداية</span><span><b>05</b> في الساحة</span></div>
+   <button id="start" class="primary"><span id="startText">تشغيل الكاميرا والليزر</span><span>↗</span></button>
+   <button id="setupMenu" class="secondary" disabled>تجربة بالماوس / اللمس <span>↗</span></button>
+   <a class="secondary" href="./isolation.html?mode=repo">تجربة ريبو الجديد <span>↗</span></a>
+   <div class="load-track"><i id="loadProgress"></i></div><p id="loadStatus" class="menu-note">تحميل المرحلة والشخصية والحركات</p>
+   <a href="./debug.html" class="lab-link" style="display:block;font-size:14px;padding:8px 0">مود اختبار كاميرا الموبايل فقط</a>
+   <a href="./lab.html" class="lab-link">فتح مختبر التتبّع ↗</a>
+  </div>
+  <a class="library-return" href="./">الرجوع لقائمة الألعاب</a>
+  <nav id="gameLinks" class="game-links" aria-label="ألعاب Laser Lab" hidden></nav>
+  <div class="menu-index" dir="ltr"><span>01 — 05</span><span>FIELD TEST / V.24</span></div>
+ </section>
+ <section id="pausePanel" class="center-panel" hidden><span class="eyebrow">الجولة متوقفة</span><h2>خد نفس.</h2><p id="pauseDescription">الوقت وحركة الأعداء متوقفين.</p><button id="resume" class="primary">استكمال اللعب ↗</button><button id="restartPause" class="secondary">إعادة من البداية</button><a class="secondary" href="./">الرجوع لقائمة الألعاب</a></section>
+ <section id="resultPanel" class="center-panel" hidden><span id="resultEyebrow" class="eyebrow">انتهت الجولة</span><h2 id="resultTitle">خرجت الروبوتات عن السيطرة</h2><div class="result-stats"><span>النقاط <b id="resultScore">0</b></span><span>الروبوتات <b id="resultKills">0</b></span><span>الدقة <b id="resultAccuracy">0%</b></span></div><button id="restart" class="primary">العب من جديد ↗</button><button id="resultSetup" class="secondary">الإعدادات</button><a class="secondary" href="./">الرجوع لقائمة الألعاب</a></section>
+ <div id="errorPanel" class="center-panel" hidden><span class="eyebrow">تعذّر تشغيل المشهد</span><h2>المشهد محتاج WebGL</h2><p id="errorMessage"></p><button id="errorSetup" class="primary">فتح إعدادات الكاميرا</button><a class="secondary" href="./lab.html">فتح مختبر التتبّع</a><a class="secondary" href="./">الرجوع لقائمة الألعاب</a></div>
+</main>
+<aside id="drawer" class="drawer" hidden aria-label="إعدادات اللعبة والكاميرا">
+ <div class="drawer-header"><div><p class="eyebrow">LASER LAB</p><h2>الإعدادات</h2></div><button id="closeSettings" class="icon" aria-label="إغلاق الإعدادات">×</button></div>
+ <div class="drawer-body">
+  <section class="scene-palette" aria-labelledby="scenePaletteTitle">
+    <h3 id="scenePaletteTitle">ألوان المشهد</h3>
+    <label for="palettePreset">البالتة</label>
+    <select id="palettePreset">
+      <option value="original">ألوان اللعبة الحالية</option>
+      <option value="petrol">بترولي مطفي</option>
+      <option value="lightPetrol">بترولي فاتح</option>
+      <option value="lightSlate">أردوازي فاتح</option>
+      <option value="custom" disabled>ألوان مخصصة</option>
+    </select>
+    <div class="palette-swatches">
+      <div class="palette-field"><label for="palette-wall">الحوائط</label><input id="palette-wall" type="color"><output for="palette-wall" id="palette-value-wall" dir="ltr"></output></div>
+      <div class="palette-field"><label for="palette-floor">الأرضية</label><input id="palette-floor" type="color"><output for="palette-floor" id="palette-value-floor" dir="ltr"></output></div>
+      <div class="palette-field"><label for="palette-trim">المعدن والغطاء</label><input id="palette-trim" type="color"><output for="palette-trim" id="palette-value-trim" dir="ltr"></output></div>
+      <div class="palette-field"><label for="palette-robot">الروبوتات</label><input id="palette-robot" type="color"><output for="palette-robot" id="palette-value-robot" dir="ltr"></output></div>
+      <div class="palette-field"><label for="palette-light">لون الإضاءة</label><input id="palette-light" type="color"><output for="palette-light" id="palette-value-light" dir="ltr"></output></div>
+    </div>
+    <label for="paletteBrightness">شدة الإضاءة <output id="paletteBrightnessValue" for="paletteBrightness" dir="ltr">100%</output></label>
+    <input id="paletteBrightness" type="range" min="65" max="150" value="100">
+    <div class="palette-actions"><p>التغييرات بتظهر مباشرة وبتتحفظ على الجهاز.</p><button id="resetPalette" class="text-button" type="button">استرجاع الأصلي</button></div>
+  </section>
+
+  <p class="setup-note">شغّل مشاركة شاشة الموبايل على التلفزيون، وثبّت الكاميرا الخلفية قدّامه. الإطار بيتحدّث باستمرار، والخط الأخضر في المعاينة بيبيّن الأركان المكتشفة. اقفل الإعدادات عشان يظهر إطار اللعبة كامل على التلفزيون.</p>
+  <div id="cameraSurface" class="camera-surface"><canvas id="cameraDisplay"></canvas><canvas id="cameraOverlay"></canvas><div id="cameraEmpty">معاينة الكاميرا تظهر هنا</div><span id="spotBadge">الكاميرا متوقفة</span><div id="manualHint" hidden></div></div>
+  <div class="camera-info"><span id="cameraStatus">الكاميرا متوقفة</span><span id="fps" dir="ltr">— FPS</span></div><p id="cameraError" class="camera-error" role="alert" hidden></p>
+  <div class="frame-tracking" role="status"><strong id="frameTrackingStatus">تتبّع الإطار متوقف</strong><span id="frameTrackingCount">يتم تحديث الأركان طوال التشغيل</span></div><div class="performance-box"><strong>الأداء المباشر</strong><span id="performanceReadout">بانتظار القياس…</span><small id="analysisMode">تحضير التحليل…</small></div><label for="renderQuality">جودة الرسم</label><select id="renderQuality"><option value="high" selected>جودة عالية · عرض أوضح</option><option value="balanced">متوازن</option><option value="performance">أداء أعلى · رسم أخف</option></select><label for="sceneLook">مظهر المشهد</label><select id="sceneLook"><option value="color" selected>إضاءة سماوي وبترولي</option><option value="previous">إضاءة النسخة السابقة</option><option value="gray">رمادي</option><option value="dim">رمادي غامق</option></select>
+  <p class="setup-note scene-look-note">بدّل من زر ◐ أثناء اللعب وقارن التقاط الليزر بين الإضاءة الجديدة والسابقة.</p>
+  <label for="cameraSelect">الكاميرا</label><div class="inline"><select id="cameraSelect"><option value="">تلقائي · الكاميرا الخلفية</option></select><button id="startCamera" class="secondary">تشغيل الكاميرا</button></div>
+  <div class="two-col"><div><label for="colorMode">لون الليزر</label><select id="colorMode"><option value="red-halo" selected>أحمر / وردي · قلب وهالة</option><option value="auto">أحمر وأخضر</option><option value="red">أحمر / وردي · الكشف السابق</option><option value="fast-red">أحمر سريع · بكسل واحد يكفي</option><option value="green">أخضر</option></select></div><div><label for="resolution">دقة التحليل</label><select id="resolution"><option value="480">480px · أخف</option><option value="640" selected>640px · متوازن</option><option value="960">960px · نقطة صغيرة</option></select></div></div>
+  <label for="sensitivity">الحساسية <output id="sensitivityValue">50%</output></label><input id="sensitivity" type="range" min="0" max="100" value="50">
+  <div class="calibration-box"><div><span id="calibrationBadge">المعايرة مطلوبة</span><span id="cvStatus">تحميل OpenCV…</span></div><button id="autoCalibrate" class="primary" disabled>التقاط الإطار وبدء اللعب ↗</button><button id="pickFrameColor" class="secondary" disabled>اختيار لون الإطار من الكاميرا</button><div class="frame-color-tools"><span id="frameColorStatus">أزرق / سماوي تلقائي</span><button id="resetFrameColor" class="text-button">لون تلقائي</button></div><button id="manualCalibrate" class="secondary" disabled>تحديد الأركان يدويًا</button><button id="resetCalibration" class="text-button">إلغاء المعايرة</button></div>
+  <label class="check"><input id="mirror" type="checkbox">عكس معاينة الكاميرا فقط</label>
+  <label class="check"><input id="sound" type="checkbox" checked>مؤثرات صوتية</label>
+  <section id="waveSettings"><div class="two-col"><div><label for="waveTotal">عدد أعداء أول موجة</label><input id="waveTotal" type="number" min="1" max="60" value="10"></div><div><label for="activeCap">أقصى أعداء في الساحة</label><input id="activeCap" type="number" min="1" max="10" value="5"></div></div>
+  <label for="difficulty">مستوى الهجوم</label><select id="difficulty"><option value="normal">عادي</option><option value="easy">تجريبي · ضرر أقل</option></select>
+  <p class="setup-note">إعدادات الموجات تطبّق مع بداية جولة جديدة. كل ظهور جديد لليزر يحسب طلقة واحدة؛ ارفع الليزر لحظة بين الطلقات.</p></section>
+  <div class="drawer-links"><button id="demoToggle" class="text-button">محاكاة الإطار والليزر</button><a href="./lab.html">مختبر التتبّع ↗</a></div>
+ </div>
+</aside>
+<video id="video" class="camera-source" autoplay playsinline webkit-playsinline muted aria-hidden="true"></video>
+<div id="toast" role="status" hidden></div>
+<script type="module" src="./play.js?v=library-1"></script>
+</body></html>

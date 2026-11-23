@@ -2,7 +2,9 @@ import { ArcadeGame, findGame, listGames } from './games/catalog.js';
 import { LaserCamera } from './camera.js?v=19';
 import { BASE_PALETTE, PALETTE_COLORS, PALETTE_PRESETS, normalizePalette, palettePreset } from './scene-palette.js?v=24';
 const $=id=>document.getElementById(id);let game=null,tracker=null,current=null,aim=null,marker=null,toastTimer,damageTimer,shotTimer,drawerWasPaused=false,calibrationWasMenu=false,failed=false,audio=null;
-const selectedGame = findGame(new URLSearchParams(location.search).get('game'));
+const requestedSlug = new URLSearchParams(location.search).get('game') || 'robot-outbreak';
+const currentGame = findGame(requestedSlug);
+const selectedGame = currentGame?.engine === 'arcade' ? currentGame : null;
 const gameMount = $('gameMount');
 const aimCanvas=$('aim'),ctx=aimCanvas.getContext('2d');
 let visionPerf={},renderFrames=0,renderSince=performance.now(),renderFps=0,nextPerf=0,aimWasVisible=false,aimRect=aimCanvas.getBoundingClientRect();
@@ -163,13 +165,12 @@ function drawAim(now){
 function configureGameMenu() {
   const links = $('gameLinks');
   const alternatives = listGames();
-  if (selectedGame) alternatives.unshift({ title: 'Robot Outbreak', slug: null });
   for (const entry of alternatives) {
-    if (entry.slug === selectedGame?.slug) continue;
+    if (entry.slug === currentGame?.slug) continue;
     const link = document.createElement('a');
-    link.href = entry.slug ? './?game=' + encodeURIComponent(entry.slug) : './';
+    link.href = './play.html?game=' + encodeURIComponent(entry.slug);
     link.className = 'lab-link';
-    link.textContent = entry.title + ' ↗';
+    link.textContent = entry.title;
     links.append(link);
   }
   links.hidden = !links.childElementCount;
@@ -207,6 +208,7 @@ configureGameMenu();
 
 async function initialize(){
   try{
+    if (!currentGame) throw new Error('اللعبة غير موجودة في القائمة. ارجع لقائمة الألعاب واختار لعبة متاحة.');
     if (selectedGame) {
       await initializeArcade();
       return;

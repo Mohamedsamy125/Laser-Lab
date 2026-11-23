@@ -18,8 +18,8 @@
 
 
 /* Apply the comparison only to the world, including its loading preview. */
-#world{background:url('./assets/arena-preview-lit.jpg') center/cover}
-#world[data-scene-look="previous"]{background-image:url('./assets/arena-preview.jpg?v=18')}
+#world{background:url('./games/robot-outbreak/assets/images/arena-preview-lit.jpg') center/cover}
+#world[data-scene-look="previous"]{background-image:url('./games/robot-outbreak/assets/images/arena-preview.jpg?v=18')}
 #world[data-scene-look="gray"]{filter:grayscale(1)}
 #world[data-scene-look="dim"]{filter:grayscale(1) brightness(.68)}
 .scene-look-note{margin-top:7px}
@@ -66,3 +66,7 @@
 .arcade-game #aim{z-index:4;pointer-events:none}
 .arcade-game #menuTitle{font-size:clamp(29px,8vmin,72px);overflow-wrap:anywhere}
 @media(max-width:700px){.game-links{top:62px;right:10px}}
+
+.tools a.icon{text-decoration:none}
+
+.library-return{position:absolute;right:28px;bottom:65px;font-size:14px;color:var(--text);text-decoration:underline;text-underline-offset:5px;z-index:1}

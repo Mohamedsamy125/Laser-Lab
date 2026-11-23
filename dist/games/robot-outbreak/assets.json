@@ -1,0 +1,8 @@
+{
+  "characters": ["assets/characters/zombie-robot.glb"],
+  "animations": ["Attack, Idle, Running — embedded in assets/characters/zombie-robot.glb"],
+  "environments": ["assets/environments/calibration-lab.glb"],
+  "textures": [],
+  "audio": [],
+  "images": ["assets/images/arena-preview-lit.jpg", "assets/images/arena-preview.jpg"]
+}

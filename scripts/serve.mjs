@@ -22,6 +22,7 @@ const types = new Map(Object.entries({
   '.jpg': 'image/jpeg',
   '.jpeg': 'image/jpeg',
   '.png': 'image/png',
+  '.gif': 'image/gif',
   '.webp': 'image/webp',
   '.svg': 'image/svg+xml',
   '.mp3': 'audio/mpeg',

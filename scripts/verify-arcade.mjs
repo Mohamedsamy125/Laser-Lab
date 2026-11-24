@@ -8,12 +8,15 @@ const steps = [];
 let starts = 0;
 let loaded = false;
 let disposed = false;
+let finishRound;
 
 const game = new ArcadeGame({
   createGame(context) {
     assert.equal(context.mount, mount);
     assert.equal(typeof context.restart, 'function');
     assert.equal(typeof context.playSound, 'function');
+    assert.equal(typeof context.finish, 'function');
+    finishRound = context.finish;
     return {
       async load() { loaded = true; },
       start() { starts++; },
@@ -62,6 +65,15 @@ game.start();
 assert.equal(starts, 2);
 assert.equal(game.shots, 0);
 game.setQuality('high');
+
+finishRound();
+assert.equal(game.state, 'finished');
+const finishedShots = game.shots, finishedSteps = steps.length;
+game.pause(true);game.shoot({x:.5,y:.5});game.render(1000);
+assert.equal(game.paused, false, 'finished games do not open the shared pause panel');
+assert.equal(game.shots, finishedShots, 'finished games reject laser and pointer shots');
+assert.equal(steps.length, finishedSteps, 'finished games stop updating');
+game.start();assert.equal(game.state, 'playing', 'restart reopens the shared lifecycle');
 game.dispose();
 assert.ok(disposed);
 assert.equal(findGame('../vendor'), null);

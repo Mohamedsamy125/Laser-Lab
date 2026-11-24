@@ -1,9 +1,9 @@
-import {VisionChannel} from './vision-channel.js?v=7';
-import {FrameDetector} from './tracking.js?v=7';
-import {rgbHSV} from './debug-spot.js?v=11';
-import {LaserSpotDetector} from './laser-spot.js?v=18';
+import {VisionChannel} from './laser/vision-channel.js';
+import {FrameDetector} from './laser/tracking.js';
+import {rgbHSV} from './laser/debug-spot.js';
+import {LaserSpotDetector} from './laser/laser-spot.js';
 import {DebugState} from './debug-state.js?v=8';
-import {DebugCameraSource,isGreenCameraFrame} from './debug-source.js?v=10';
+import {DebugCameraSource,isGreenCameraFrame} from './laser/debug-source.js';
 const $=id=>document.getElementById(id),video=$('video'),source=new DebugCameraSource(video),state=new DebugState(),frameColor=new FrameDetector(null),detector=new LaserSpotDetector();
 const cameraDisplay=$('cameraDisplay'),cameraContext=cameraDisplay.getContext('2d');
 let greenPreview=false;
@@ -29,7 +29,7 @@ function receivePoint(r){
 function initFrame(){
   if(!$('findFrame').checked||frameWorker)return;if(typeof Worker!=='function'){frameFailed=true;return;}
   try{
-    frameFailed=false;frameWorker=new VisionChannel(new URL('./frame-worker.js?v=7',import.meta.url),{type:'classic',timeout:5000,onresult:r=>{
+    frameFailed=false;frameWorker=new VisionChannel(new URL('./laser/frame-worker.js',import.meta.url),{type:'classic',timeout:5000,onresult:r=>{
       const now=performance.now();if(r.epoch!==epoch||!active())return;frameMs=r.ms;if(now-r.capturedAt>1500)return;
       state.frame(r.found,r.capturedAt);if(!r.found)nextFull=0;draw(now);
     },onerror:()=>{frameWorker=null;frameFailed=true;error('تعذّر البحث التلقائي عن الإطار. كشف الليزر مستمر، وتقدر تحدد الأركان يدويًا.');}});
@@ -38,7 +38,7 @@ function initFrame(){
 }
 function initWorkers(){
   if(typeof Worker==='function'&&!spotWorker)try{
-    spotWorker=new VisionChannel(new URL('./debug-worker.js?v=18',import.meta.url),{onresult:receivePoint,onerror:()=>{spotWorker=null;}});spotWorker.ready.catch(()=>{});
+    spotWorker=new VisionChannel(new URL('./laser/spot-worker.js',import.meta.url),{onresult:receivePoint,onerror:()=>{spotWorker=null;}});spotWorker.ready.catch(()=>{});
   }catch{spotWorker=null;}
   initFrame();
 }

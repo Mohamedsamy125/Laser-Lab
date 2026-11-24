@@ -34,7 +34,7 @@ export async function createGameFolder(root, slug, title = slug) {
   await writeFile(join(folder, 'assets.json'), JSON.stringify({
     characters: [], animations: [], environments: [], textures: [], audio: [], images: [],
   }, null, 2) + '\n');
-  await writeFile(join(folder, 'game.js'), `export function createGame({ mount, restart, playSound }) {
+  await writeFile(join(folder, 'game.js'), `export function createGame({ mount, restart, playSound, finish }) {
   // Resolve every asset relative to this module:
   // const model = new URL('./assets/characters/player.glb', import.meta.url);
   return {

@@ -1,5 +1,5 @@
 import { ArcadeGame, findGame, listGames } from './games/catalog.js';
-import { LaserCamera } from './camera.js?v=19';
+import { LaserCamera } from './laser/index.js';
 import { BASE_PALETTE, PALETTE_COLORS, PALETTE_PRESETS, normalizePalette, palettePreset } from './scene-palette.js?v=24';
 const $=id=>document.getElementById(id);let game=null,tracker=null,current=null,aim=null,marker=null,toastTimer,damageTimer,shotTimer,drawerWasPaused=false,calibrationWasMenu=false,failed=false,audio=null;
 const requestedSlug = new URLSearchParams(location.search).get('game') || 'robot-outbreak';
@@ -93,7 +93,7 @@ function update(s){
 function start(){if(!game||failed||game.state==='loading')return;remember();unlockAudio();$('menu').hidden=true;$('resultPanel').hidden=true;$('pausePanel').hidden=true;document.body.classList.remove('menu-open');game.start(settings());}
 function openSettings(){
   if(!$('drawer').hidden)return;drawerWasPaused=game?.paused||false;$('drawer').hidden=false;$('drawer').querySelector('.drawer-body').scrollTop=0;tracker.preview=true;tracker.loadCV();
-  if(game&&!['ready','won','lost','error','loading'].includes(game.state))game.pause(true);$('pausePanel').hidden=true;
+  if(game&&!['ready','won','lost','finished','error','loading'].includes(game.state))game.pause(true);$('pausePanel').hidden=true;
 }
 function openCameraSettings(){
   openSettings();unlockAudio();
@@ -103,7 +103,7 @@ function closeSettings(){
   remember();$('drawer').hidden=true;tracker.preview=false;
   if(game&&!drawerWasPaused&&!tracker.calibrating&&!tracker.captureAt&&!tracker.manual)game.pause(false);
 }
-function togglePause(){if(!game||['ready','won','lost','error','loading'].includes(game.state))return;game.pause(!game.paused);}
+function togglePause(){if(!game||['ready','won','lost','finished','error','loading'].includes(game.state))return;game.pause(!game.paused);}
 function showError(error){
   failed=true;console.error(error);if(/WebGL|context/i.test(error.message)&&!current){$('setupMenu').disabled=true;$('loadStatus').textContent='شغّل اللعبة على متصفح بيدعم WebGL. إعداد الكاميرا ومختبر التتبّع متاحين.';$('loadProgress').style.width='100%';return;}$('menu').hidden=true;$('errorPanel').hidden=false;$('waveBanner').hidden=true;
   $('errorMessage').textContent=/WebGL|context/i.test(error.message)?'فعّل تسريع الرسوميات، أو جرّب Chrome / Safari على جهاز بيدعم WebGL. اختبار الكاميرا متاح من الزر تحت.':'تعذّر تحميل أو تشغيل المرحلة. أعد تحميل الصفحة. '+error.message;
@@ -122,7 +122,7 @@ tracker=new LaserCamera({toast,performance:p=>{visionPerf=p;},shot:uv=>game?.sho
   $('captureLabel').textContent=p.frames?(p.source==='demo'?'معاينة المحاكاة':'معاينة مباشرة'):'بانتظار الصور';
 },calibrating:(active,success)=>{
   if(active){
-    calibrationWasMenu=!$('menu').hidden;closeSettings();if(game&&!['ready','lost','won'].includes(game.state))game.pause(true);
+    calibrationWasMenu=!$('menu').hidden;closeSettings();if(game&&!['ready','lost','won','finished'].includes(game.state))game.pause(true);
     calibrationScreen.hidden=false;document.body.classList.add('calibration-mode');setCaptureView(true);$('pausePanel').hidden=true;
   }else{
     calibrationScreen.hidden=true;document.body.classList.remove('calibration-mode');setCaptureView(false);
@@ -179,6 +179,7 @@ function configureGameMenu() {
   document.title = 'Laser Lab · ' + selectedGame.title;
   $('gameWordmark').textContent = selectedGame.title;
   $('menuTitle').textContent = selectedGame.title;
+  $('menuTitle').dir = 'auto';
   $('menuDescription').textContent = selectedGame.description;
   $('pauseDescription').textContent = 'الجولة هتكمل من مكان ما وقفت.';
   $('loadStatus').textContent = 'تحميل اللعبة…';

@@ -1,0 +1,81 @@
+{
+  "characters": [
+    {
+      "name": "Cyclops Alien",
+      "idle": "assets/animations/cyclops-idle.png",
+      "hit": "assets/animations/cyclops-hit.png"
+    },
+    {
+      "name": "Mocking Alien",
+      "idle": "assets/animations/mocking-idle.png",
+      "hit": "assets/animations/mocking-hit.png"
+    }
+  ],
+  "animations": [
+    {
+      "source": "assets/images/balloons/monster1/Cyclops_Alien_Idle.gif",
+      "atlas": "assets/animations/cyclops-idle.png",
+      "frames": 80,
+      "duration_ms": 4000,
+      "loop": true
+    },
+    {
+      "source": "assets/images/balloons/monster1/Cyclops_Alien_Hit_Pop.gif",
+      "atlas": "assets/animations/cyclops-hit.png",
+      "frames": 18,
+      "duration_ms": 1770,
+      "loop": false
+    },
+    {
+      "file": "assets/animations/cyclops.json",
+      "role": "توقيت الفريمات وأقنعة الإصابة حسب شفافية الصور"
+    },
+    {
+      "source": "assets/images/balloons/monster2/Mocking_Alien_Idle_Laugh.gif",
+      "atlas": "assets/animations/mocking-idle.png",
+      "frames": 80,
+      "duration_ms": 4000,
+      "loop": true
+    },
+    {
+      "source": "assets/images/balloons/monster2/Mocking_Alien_Hit_Pop.gif",
+      "atlas": "assets/animations/mocking-hit.png",
+      "frames": 18,
+      "duration_ms": 1770,
+      "loop": false
+    },
+    {
+      "source": "assets/images/planets/Jade_Planet_Rotate.gif",
+      "atlas": "assets/animations/jade-planet.png",
+      "frames": 128,
+      "duration_ms": 12800,
+      "playback_rate": 0.45,
+      "loop": true
+    },
+    {
+      "file": "assets/animations/mocking.json",
+      "role": "توقيت فريمات العدو الثاني وأقنعة إصابته"
+    },
+    {
+      "file": "assets/animations/sprites.json",
+      "role": "الفهرس المشترك لكل الأنيميشن: العدوين والكوكب"
+    }
+  ],
+  "environments": [],
+  "textures": [],
+  "audio": [],
+  "images": [
+    {
+      "file": "assets/images/backgrounds/Silent Jade Space Gradient.png",
+      "role": "خلفية السماء"
+    },
+    {
+      "file": "assets/images/planets/Quiet jade alien planet.png",
+      "role": "الكوكب الأخضر"
+    },
+    {
+      "file": "assets/animations/cyclops-poster.png",
+      "role": "معاينة الشخصية في قائمة الألعاب"
+    }
+  ]
+}

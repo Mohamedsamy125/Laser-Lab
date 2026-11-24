@@ -34,7 +34,7 @@ try {
     });
   });
   assert.equal((await fetch(new URL('/', url))).status, 404, 'test server exposes only the Pages prefix');
-  const paths = ['.', 'play.html?game=robot-outbreak', 'lab.html', 'debug.html', 'isolation.html', 'display.html', 'frame-worker.js', 'spot-worker.js', 'library.js', 'games/catalog.js', 'game.js'];
+  const paths = ['.', 'play.html?game=robot-outbreak', 'lab.html', 'debug.html', 'isolation.html', 'display.html', 'frame-worker.js', 'spot-worker.js', 'laser/index.js', 'laser/frame-worker.js', 'laser/spot-worker.js', 'library.js', 'games/catalog.js', 'game.js'];
   for (const path of paths) {
     const response = await fetch(new URL(path, url));
     assert.equal(response.status, 200, path + ' must serve under the repository prefix');
@@ -52,6 +52,17 @@ try {
   }
   for (const game of listGames()) {
     if (game.cover) assert.equal((await fetch(new URL(game.cover, url))).status, 200);
+    const inventory = JSON.parse(await readFile(join(dist, 'games', game.slug, 'assets.json'), 'utf8'));
+    const files = new Set();
+    const collect = value => {
+      if (typeof value === 'string' && value.startsWith('assets/')) files.add(value);
+      else if (value && typeof value === 'object') Object.values(value).forEach(collect);
+    };
+    collect(inventory);
+    for (const file of files) {
+      assert.equal((await fetch(new URL('games/' + game.slug + '/' + file, url), { method: 'HEAD' })).status, 200,
+        game.slug + ' has a missing supplied/generated asset: ' + file);
+    }
   }
   for (const path of ['characters/zombie-robot.glb', 'environments/calibration-lab.glb']) {
     const response = await fetch(new URL('games/robot-outbreak/assets/' + path, url));

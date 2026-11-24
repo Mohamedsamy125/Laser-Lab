@@ -1,8 +1,10 @@
 import robotOutbreak from './robot-outbreak/manifest.js';
+import game_space_balloons from './space-balloons/manifest.js';
 // GAME_IMPORTS — added by npm run game:new
 
 const entries = [
   robotOutbreak,
+  game_space_balloons,
   // GAME_ENTRIES — added by npm run game:new
 ];
 const games = new Map();
@@ -28,7 +30,12 @@ export class ArcadeGame {
     this.paused = false;
     this.lastFrame = null;
     this.onPause = callbacks.onPause;
-    this.game = module.createGame({ mount, restart: callbacks.restart, playSound: callbacks.playSound });
+    this.game = module.createGame({ mount, restart: callbacks.restart, playSound: callbacks.playSound,
+      finish: () => {
+        if (this.state !== 'playing') return;
+        this.state = 'finished'; this.paused = false; this.lastFrame = null; this.onPause(false);
+      },
+    });
   }
 
   async load() {
@@ -45,6 +52,7 @@ export class ArcadeGame {
   }
 
   pause(value) {
+    if (this.state === 'finished') return;
     this.paused = Boolean(value);
     this.lastFrame = null;
     this.onPause(this.paused);

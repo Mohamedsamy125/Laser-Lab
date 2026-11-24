@@ -1,5 +1,5 @@
-import { FrameDetector, homography, projectPoint, orderCorners } from './tracking.js?v=7';
-import { LaserSpotDetector } from './laser-spot.js?v=18';
+import { FrameDetector, homography, projectPoint, orderCorners } from './laser/tracking.js';
+import { LaserSpotDetector } from './laser/laser-spot.js';
 
 const $ = id => document.getElementById(id);
 const video = $('video'), display = $('cameraDisplay'), overlay = $('cameraOverlay');

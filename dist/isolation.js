@@ -1,5 +1,5 @@
-import {DebugCameraSource} from './debug-source.js?v=8';
-import {VisionChannel} from './vision-channel.js?v=7';
+import {DebugCameraSource} from './laser/debug-source.js';
+import {VisionChannel} from './laser/vision-channel.js';
 import {IsolationSpotDetector,ScreenSpotDetector} from './isolation-spot.js?v=3';
 
 const $=id=>document.getElementById(id);

@@ -1,4 +1,4 @@
-import {homography,projectPoint,orderCorners} from './tracking.js?v=7';
+import {homography,projectPoint,orderCorners} from './laser/tracking.js';
 export class DebugState {
   constructor(){this.reset();}
   reset(){this.corners=null;this.matrix=null;this.candidate=null;this.stable=0;this.lastFrame=0;this.checks=0;this.updates=0;this.spot=null;this.uv=null;this.shots=0;this.latched=false;this.blanks=0;this.lastSpot=0;this.history=[];this.manual=false;}

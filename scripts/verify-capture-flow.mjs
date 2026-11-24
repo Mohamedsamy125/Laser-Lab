@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import {LaserCamera} from '../dist/camera.js';
+import {shootWithFeedback} from '../dist/shot-feedback.js';
 const elements=new Map();
 function element(id=''){
  const context={drawImage(){},save(){},restore(){},clearRect(){},translate(){},scale(){},beginPath(){},rect(){},moveTo(){},lineTo(){},closePath(){},stroke(){},fill(){},getImageData:(x,y,w,h)=>({width:w,height:h,data:new Uint8ClampedArray(w*h*4)})};
@@ -49,11 +50,12 @@ for(let i=0;i<3;i++){camera.nextFrameScan=0;camera.scanFrame({},lostAt+300+i*300
 camera.updateTrackingStatus(lostAt+900);assert.equal(camera.trackingState,'tracking');assert(camera.mappingUsable(lostAt+900));
 // Candidate ROI is passed to the laser detector. The raw image is never blacked
 // out, and a found point can trigger again only after a genuine blank gap.
-let fillCount=0,shots=[];camera.pc.fill=()=>fillCount++;camera.callbacks.shot=p=>shots.push(p);camera.latched=false;camera.nextFrameScan=Infinity;camera.lastFrameFound=performance.now();
+let fillCount=0,shots=[],sounds=[];const game={state:'playing',paused:false,shoot:p=>shots.push(p)};
+camera.pc.fill=()=>fillCount++;camera.callbacks.shot=p=>shootWithFeedback(game,p,name=>sounds.push(name));camera.latched=false;camera.nextFrameScan=Infinity;camera.lastFrameFound=performance.now();
 camera.detector.detect=(data,w,h,roi)=>{assert.deepEqual(roi,camera.corners);return {x:.4,y:.4};};
 for(let i=0;i<2;i++){camera.lastTick=0;await camera.tick(performance.now()+100);}
 assert.equal(shots.length,1);assert.equal(fillCount,0);
-camera.detector.detect=()=>null;camera.lastSeen=performance.now()-80;camera.lastTick=0;await camera.tick(performance.now()+100);assert.equal(camera.latched,true,'one blank frame must not duplicate a held shot');camera.lastTick=0;await camera.tick(performance.now()+100);assert.equal(camera.latched,false);
+camera.detector.detect=()=>null;camera.lastTick=0;await camera.tick(performance.now()+100);assert.equal(camera.latched,false,'one fresh blank image rearms even a brief interruption');
 camera.detector.detect=()=>({x:.4,y:.4});camera.lastTick=0;await camera.tick(performance.now()+100);assert.equal(shots.length,2);
 // A lost mapping blocks shots even if the red/green spot remains visible.
 camera.lastFrameFound=performance.now()-1600;camera.lastTick=0;camera.latched=false;await camera.tick(performance.now()+100);assert.equal(shots.length,2);
@@ -62,6 +64,34 @@ camera.lastFrameFound=performance.now()-1600;camera.lastTick=0;camera.latched=fa
 const fresh={epoch:camera.epoch,generation:camera.generation,capturedAt:performance.now(),matrix:camera.matrix,spot:{x:.4,y:.4},ms:2};camera.lastFrameFound=performance.now();camera.latched=false;
 camera.receiveSpot({...fresh,epoch:fresh.epoch-1});camera.receiveSpot({...fresh,generation:fresh.generation-1});camera.receiveSpot({...fresh,capturedAt:performance.now()-500});assert.equal(shots.length,2);
 camera.receiveSpot(fresh);assert.equal(shots.length,3);
+// Moving a held beam across many targets never fires or sounds again.
+for(let i=0;i<120;i++)camera.receiveSpot({...fresh,capturedAt:performance.now(),spot:{x:.3+(i%20)*.02,y:.4}});
+assert.equal(shots.length,3);assert.deepEqual(sounds,['shot','shot','shot']);
+// A paused/stalled feed or an old blank reply is not evidence of release.
+for(const result of [
+  {...fresh,spot:null,capturedAt:performance.now()-500},
+  {...fresh,spot:null,epoch:fresh.epoch-1},
+  {...fresh,spot:null,generation:fresh.generation-1},
+  {...fresh,spot:null,mode:'wrong-mode'},
+])camera.receiveSpot(result);
+const readFrame=camera.readFrame;camera.readFrame=async()=>null;camera.lastTick=0;await camera.tick(performance.now()+100);camera.readFrame=readFrame;
+assert(camera.latched);
+camera.receiveSpot({...fresh,capturedAt:performance.now()});assert.equal(shots.length,3);
+// Loss of the border, or moving the still-visible beam outside it, cannot
+// turn a held laser into automatic fire when it comes back inside.
+camera.lastFrameFound=performance.now()-1600;camera.receiveSpot({...fresh,capturedAt:performance.now()});
+camera.lastFrameFound=performance.now();camera.receiveSpot({...fresh,capturedAt:performance.now(),spot:{x:0,y:0}});
+camera.receiveSpot({...fresh,capturedAt:performance.now()});assert.equal(shots.length,3);
+// A genuine blank and reappearance fires once more, without a time delay.
+camera.receiveSpot({...fresh,capturedAt:performance.now(),spot:null});assert.equal(camera.latched,false);
+camera.receiveSpot({...fresh,capturedAt:performance.now()});camera.receiveSpot({...fresh,capturedAt:performance.now()});
+assert.equal(shots.length,4);assert.equal(sounds.length,4);
+// Paused and rejected game input never plays gunfire feedback.
+game.paused=true;assert.equal(shootWithFeedback(game,{x:.5,y:.5},name=>sounds.push(name)),false);game.paused=false;
+assert.equal(shootWithFeedback({...game,shoot:()=>({kind:'ignored'})},{x:.5,y:.5},name=>sounds.push(name)),false);
+assert.equal(shootWithFeedback({...game,state:'finished'},{x:.5,y:.5},name=>sounds.push(name)),false);
+assert.equal(shootWithFeedback(game,{x:NaN,y:.5},name=>sounds.push(name)),false);
+assert.equal(shots.length,4);assert.equal(sounds.length,4);
 // Prefer fresh decoded video, and fall back to ImageCapture after it stalls.
 camera.lastVideo=-1;camera.lastVideoAt=0;const videoFrame=await camera.readFrame(performance.now());assert.equal(videoFrame.source,camera.video);assert.equal(await camera.readFrame(performance.now()),null);camera.lastVideoAt=performance.now()-250;const trackFrame=await camera.readFrame(performance.now());assert.equal(camera.captureMode,'track');trackFrame.close();
 // A stalled live video must be restarted during the game, outside calibration.

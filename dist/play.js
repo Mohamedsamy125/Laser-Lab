@@ -1,5 +1,6 @@
 import { ArcadeGame, findGame, listGames } from './games/catalog.js';
 import { LaserCamera } from './laser/index.js';
+import { playGunshot, shootWithFeedback } from './shot-feedback.js';
 import { BASE_PALETTE, PALETTE_COLORS, PALETTE_PRESETS, normalizePalette, palettePreset } from './scene-palette.js?v=24';
 const $=id=>document.getElementById(id);let game=null,tracker=null,current=null,aim=null,marker=null,toastTimer,damageTimer,shotTimer,drawerWasPaused=false,calibrationWasMenu=false,failed=false,audio=null;
 const requestedSlug = new URLSearchParams(location.search).get('game') || 'robot-outbreak';
@@ -73,6 +74,7 @@ sceneLookToggle.onclick=()=>{
 function unlockAudio(){try{if(!audio){const C=window.AudioContext||window.webkitAudioContext;if(C)audio=new C();}audio?.resume();}catch{}}
 function sound(name){
   if(!$('sound').checked||!audio||audio.state!=='running')return;
+  if(name==='shot'){playGunshot(audio);return;}
   const tones={start:[330,.08],wave:[520,.16],hit:[730,.05],kill:[1020,.1],miss:[155,.035],reload:[220,.08],damage:[85,.12],clear:[880,.22],lost:[65,.4]};const [f,d]=tones[name]||[300,.05];
   const osc=audio.createOscillator(),gain=audio.createGain();osc.type=name==='damage'?'triangle':'sine';osc.frequency.setValueAtTime(f,audio.currentTime);osc.frequency.exponentialRampToValueAtTime(Math.max(45,f*.55),audio.currentTime+d);gain.gain.setValueAtTime(.07,audio.currentTime);gain.gain.exponentialRampToValueAtTime(.001,audio.currentTime+d);osc.connect(gain);gain.connect(audio.destination);osc.start();osc.stop(audio.currentTime+d+.01);
 }
@@ -114,7 +116,7 @@ function onShot(result){
   $('shotLabel').textContent=result.kind==='headshot'?'إصابة الرأس +':result.killed?'تم تدمير الروبوت':result.kind==='hit'?'إصابة':result.kind==='blocked'?'حاجز':'';
   clearTimeout(shotTimer);shotTimer=setTimeout(()=>$('shotLabel').textContent='',600);
 }
-tracker=new LaserCamera({toast,performance:p=>{visionPerf=p;},shot:uv=>game?.shoot(uv),aim:uv=>aim=uv,status:s=>{
+tracker=new LaserCamera({toast,performance:p=>{visionPerf=p;},shot:uv=>shootWithFeedback(game,uv,sound),aim:uv=>aim=uv,status:s=>{
   $('cameraPreview').classList.toggle('on',s.active&&!s.demo);$('cameraPreview').classList.toggle('opening',s.opening);$('cameraPreview').setAttribute('aria-label',s.opening?'جاري فتح الكاميرا':s.active?'الكاميرا شغالة — فتح المعاينة':'الكاميرا متوقفة — فتح المعاينة');
   $('inputStatus').textContent=s.active?(s.tracking==='lost'?'الإطار مفقود · جاري استعادته':s.calibrated?(s.demo?'محاكاة · تتبّع مستمر':'ليزر · تتبّع مستمر'):'الكاميرا شغالة · جاري البحث عن الإطار'):'ماوس / لمس';
 },progress:p=>{
@@ -142,7 +144,7 @@ $('fullscreen').onclick=async()=>{
 function pointerShot(event) {
   if (event.target.closest('button, a, input, select, textarea, [data-no-shot]')) return;
   if(!game||!$('drawer').hidden||!calibrationScreen.hidden)return;
-  unlockAudio();const r=aimCanvas.getBoundingClientRect();game.shoot({x:(event.clientX-r.left)/r.width,y:(event.clientY-r.top)/r.height});
+  unlockAudio();const r=aimCanvas.getBoundingClientRect();shootWithFeedback(game,{x:(event.clientX-r.left)/r.width,y:(event.clientY-r.top)/r.height},sound);
 }
 aimCanvas.onpointerdown=pointerShot;
 gameMount.onpointerdown=pointerShot;

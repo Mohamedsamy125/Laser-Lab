@@ -287,8 +287,11 @@ export class LaserCamera {
     if(this.analysisAge>300){this.callbacks.aim?.(null);return;}
     this.spot=result.spot;
     const uv=this.spot&&this.mappingUsable(now)?projectPoint(result.matrix,this.spot):null,inside=uv&&uv.x>=0&&uv.x<=1&&uv.y>=0&&uv.y<=1;
-    if(this.spot){this.lastDetectedAt=now;this.spotMapped=!!inside;this.missingSpotFrames=0;this.lastSeen=now;if(inside&&!this.latched){this.latched=true;this.callbacks.shot?.(uv);}}
-    else{this.missingSpotFrames=(this.missingSpotFrames||0)+1;if(this.missingSpotFrames>=2&&now-this.lastSeen>=60)this.latched=false;}
+    if(this.spot){this.lastDetectedAt=now;this.spotMapped=!!inside;this.lastSeen=now;if(inside&&!this.latched){this.latched=true;this.callbacks.shot?.(uv);}}
+    // Only a fresh analyzed image with no spot releases the trigger. A held
+    // beam stays latched through movement, missing camera frames or mapping loss.
+    // Even a brief detected interruption allows the next appearance to fire.
+    else this.latched=false;
     this.callbacks.aim?.(inside?uv:null);
     $('spotBadge').textContent=this.spot?(inside?(this.spot.bloom?'ليزر داخل الشاشة · قلب مضيء':'ليزر داخل الشاشة'):this.matrix?'الليزر ظاهر · استعادة الإطار':'الليزر ظاهر · جاري البحث عن الإطار'):this.matrix?'جاري البحث عن الليزر':'بحث عن الإطار والليزر';$('spotBadge').classList.toggle('found',!!this.spot);
   }

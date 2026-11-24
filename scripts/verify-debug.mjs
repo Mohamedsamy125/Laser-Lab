@@ -45,7 +45,7 @@ assert.equal(hybrid.detect(glare.data,glare.w,glare.h),null,'reject a white refl
 console.log('PASS: hybrid finds red/green one-sided bloom and rejects white reflections');
 const state=new DebugState();state.point({x:.5,y:.5},100);assert.equal(state.shots,1);assert.equal(state.uv,null,'raw laser appears without calibration');state.point({x:.5,y:.5},130);assert.equal(state.shots,1);
 const corners=[{x:.1,y:.1},{x:.9,y:.1},{x:.9,y:.9},{x:.1,y:.9}];for(let n=0;n<3;n++)state.frame(corners,200+n*250);assert(state.matrix);state.point({x:.5,y:.5},710);assert(Math.abs(state.uv.x-.5)<1e-6&&Math.abs(state.uv.y-.5)<1e-6);
-state.point(null,780);assert(state.latched);state.point(null,820);assert.equal(state.latched,false);state.point({x:.5,y:.5},850);assert.equal(state.shots,2);
+state.point(null,711);assert.equal(state.latched,false,'a brief disappearance releases the trigger');state.point({x:.5,y:.5},712);assert.equal(state.shots,2);state.point({x:.6,y:.5},713);assert.equal(state.shots,2,'moving a held beam never repeats a shot');
 state.frame(corners.map(p=>({x:p.x+.015,y:p.y})),900);assert(state.corners[0].x>.1,'continuous frame updates');assert.equal(state.fresh(2500),false);state.point({x:.5,y:.5},2500);assert(state.spot);assert.equal(state.uv,null,'missing frame never hides raw laser');assert(state.manualFrame(corners,2600));assert(state.fresh(20000));
 console.log('PASS: raw laser without frame; live mapping and motion; one count per beam; loss and manual corners');
 globalThis.isSecureContext=true;let stops=0;const track={stop(){stops++;},onended:null},stream={getTracks:()=>[track],getVideoTracks:()=>[track]};

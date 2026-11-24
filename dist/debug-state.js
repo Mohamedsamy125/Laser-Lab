@@ -19,6 +19,6 @@ export class DebugState {
       this.blanks=0;this.lastSpot=now;
       if(this.fresh(now)){const uv=projectPoint(this.matrix,spot);if(uv&&uv.x>=0&&uv.x<=1&&uv.y>=0&&uv.y<=1)this.uv=uv;}
       if(!this.latched){this.shots++;this.latched=true;this.history.push({x:spot.x,y:spot.y,uv:this.uv,time:now});this.history=this.history.slice(-20);}
-    }else if(++this.blanks>=2&&now-this.lastSpot>=60)this.latched=false;
+    }else this.latched=false;
   }
 }

@@ -6,6 +6,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import { spawn } from 'node:child_process';
 import { listGames, findGame } from '../dist/games/catalog.js';
 import { createGameFolder } from './new-game.mjs';
+import { GUNSHOT_URL } from '../dist/shot-feedback.js';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 const dist = join(root, 'dist');
@@ -35,6 +36,10 @@ try {
   });
   assert.equal((await fetch(new URL('/', url))).status, 404, 'test server exposes only the Pages prefix');
   const paths = ['.', 'play.html?game=robot-outbreak', 'lab.html', 'debug.html', 'isolation.html', 'display.html', 'frame-worker.js', 'spot-worker.js', 'laser/index.js', 'laser/frame-worker.js', 'laser/spot-worker.js', 'library.js', 'games/catalog.js', 'game.js'];
+  const gunshot = await fetch(new URL(GUNSHOT_URL.pathname.split('/dist/')[1], url));
+  assert.equal(gunshot.status,200,'shared gunshot works under the Pages project path');
+  assert(gunshot.headers.get('content-type').startsWith('audio/mpeg'));
+  assert((await gunshot.arrayBuffer()).byteLength>0,'the supplied audio is not empty');
   for (const path of paths) {
     const response = await fetch(new URL(path, url));
     assert.equal(response.status, 200, path + ' must serve under the repository prefix');

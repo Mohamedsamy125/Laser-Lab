@@ -1,4 +1,5 @@
-import { AlienRound, animationFrame, maskContains, waveRules } from './round.js';
+import { AlienRound, animationFrame, maskContains } from './round.js';
+import { shadeSpriteSheet } from './sprite-palette.js';
 
 const assets = {
   sky: new URL('./assets/images/backgrounds/Silent Jade Space Gradient.png', import.meta.url).href,
@@ -14,27 +15,11 @@ const loadImage = url => new Promise((resolve, reject) => {
 
 export function createGame({ mount, playSound = () => {} }) {
   const root = document.createElement('div');
-  root.className = 'space-aliens space-aliens--ready';
-  root.innerHTML = `
-    <canvas class="space-aliens__canvas" aria-label="فضائيون متحركون أمام الكوكب الأخضر"></canvas>
-    <div class="space-aliens__mission" data-no-shot><span dir="ltr">JADE ORBIT</span><small>صوّب. أصب. كرّر.</small></div>
-    <div class="space-aliens__hud" data-no-shot aria-label="إحصائيات الجولة">
-      <div><span>النقاط <small data-stat="best">أفضل: 0</small></span><strong data-stat="score" dir="ltr">0000</strong></div>
-      <div class="space-aliens__wave"><span>الموجة <small dir="ltr">UNLIMITED</small></span><strong data-stat="wave" dir="ltr">01</strong><i><b data-wave-bar></b></i><small data-stat="progress">0 / 5</small></div>
-      <div><span>الدقة <small data-stat="hits">0 إصابة</small></span><strong data-stat="accuracy" dir="ltr">0%</strong></div>
-    </div>
-    <div class="space-aliens__spawn-status" data-stat="spawnStatus" data-no-shot></div>
-    <section class="space-aliens__wave-banner" hidden aria-live="polite"><span data-wave-title></span><strong data-wave-detail></strong><small data-wave-rules></small></section>`;
+  root.className = 'space-aliens';
+  root.innerHTML = '<canvas class="space-aliens__canvas" aria-label="فضائيون متحركون أمام الكوكب الأخضر"></canvas>';
   mount.append(root);
   const canvas = root.querySelector('canvas');
   const context = canvas.getContext('2d', { alpha: false });
-  const fields = Object.fromEntries([...root.querySelectorAll('[data-stat]')].map(element => [element.dataset.stat, element]));
-  const waveBar = root.querySelector('[data-wave-bar]');
-  const waveBanner = root.querySelector('.space-aliens__wave-banner');
-  const waveTitle = root.querySelector('[data-wave-title]');
-  const waveDetail = root.querySelector('[data-wave-detail]');
-  const waveDescription = root.querySelector('[data-wave-rules]');
-  const text = (element, value) => { if (element.textContent !== value) element.textContent = value; };
   const model = new AlienRound();
   let animation, sky, planetSheet;
   const characters = new Map();
@@ -58,25 +43,6 @@ export function createGame({ mount, playSound = () => {} }) {
     size: i % 7 === 0 ? 1.5 : .7,
     alpha: .15 + (i % 5) * .065,
   }));
-
-  function updateStats() {
-    const values = {
-      score: String(model.score).padStart(4, '0'),
-      wave: String(model.wave).padStart(2, '0'),
-      progress: model.waveDefeated + ' / ' + model.rules.total,
-      spawnStatus: 'في الساحة: ' + model.aliens.length + ' من ' + model.rules.maxAlive + ' · في الانتظار: ' + model.waiting,
-      best: 'أفضل: ' + best,
-      accuracy: model.accuracy + '%', hits: model.hits + ' إصابة',
-    };
-    for (const key of Object.keys(values)) if (fields[key].textContent !== values[key]) fields[key].textContent = values[key];
-    waveBar.style.transform = 'scaleX(' + model.waveDefeated / model.rules.total + ')';
-    const between = model.phase === 'intermission';
-    waveBanner.hidden = model.state !== 'playing' || (!between && model.elapsed - model.waveStartedAt > 2.2);
-    text(waveTitle, between ? 'تم تأمين الموجة ' + model.wave : 'الموجة ' + model.wave);
-    text(waveDetail, between ? 'الموجة التالية خلال ' + Math.ceil(model.breakRemaining) : 'استعد للتصويب');
-    const rules = between ? waveRules(model.wave + 1) : model.rules;
-    text(waveDescription, rules.total + ' أعداء · ' + rules.maxAlive + ' معًا · سرعة ×' + (rules.speed / .13).toFixed(2));
-  }
 
   function resize() {
     if (disposed) return;
@@ -115,7 +81,9 @@ export function createGame({ mount, playSound = () => {} }) {
     context.globalAlpha = 1;
     context.fillStyle = '#0a18385e';
     context.fillRect(0, 0, width, height);
-    const diameter = Math.min(height * .76, width * .64);
+    const diameter = Math.min(height * .76, width * .66);
+    const planetX = Math.min(width * .72, width - diameter * .64);
+    const planetY = height * .5;
     const planet = animation.planet;
     const planetTime = model.elapsed * planet.playbackRate;
     const planetFrame = animationFrame(planet, planetTime);
@@ -127,7 +95,7 @@ export function createGame({ mount, playSound = () => {} }) {
         planet.frameSize, planet.frameSize, 0, 0, planet.frameSize, planet.frameSize);
     }
     context.globalAlpha = .62;
-    context.drawImage(planetLayer, width * .72 - diameter / 2, height * .46 - diameter / 2, diameter, diameter);
+    context.drawImage(planetLayer, planetX - diameter / 2, planetY - diameter / 2, diameter, diameter);
     context.globalAlpha = 1;
     for (const star of stars) {
       context.globalAlpha = star.alpha;
@@ -138,7 +106,7 @@ export function createGame({ mount, playSound = () => {} }) {
     context.strokeStyle = '#557d8624';
     context.lineWidth = 1;
     context.beginPath();
-    context.ellipse(width * .72, height * .46, diameter * .62, diameter * .23, -.28, 0, Math.PI * 2);
+    context.ellipse(planetX, planetY, diameter * .62, diameter * .23, -.28, 0, Math.PI * 2);
     context.stroke();
     context.save();
     context.beginPath();
@@ -157,14 +125,6 @@ export function createGame({ mount, playSound = () => {} }) {
       for (const effect of model.effects) {
         const character = characters.get(effect.type);
         drawSprite(effect, character, character.hit, character.hitSheet, effect.age, false);
-        if (effect.age < .65) {
-          context.globalAlpha = 1 - effect.age / .65;
-          context.fillStyle = '#9abdb1';
-          context.font = '600 19px system-ui';
-          context.textAlign = 'center';
-          context.fillText('+100', effect.x, effect.y - effect.size * .25 - effect.age * 40);
-          context.globalAlpha = 1;
-        }
       }
     }
     if (feedback && model.elapsed - feedback.at < .16) {
@@ -194,6 +154,8 @@ export function createGame({ mount, playSound = () => {} }) {
           loadImage(new URL(character.idle.image, assets.sprites).href),
           loadImage(new URL(character.hit.image, assets.sprites).href),
         ]);
+        character.idleSheet = shadeSpriteSheet(character.idleSheet);
+        character.hitSheet = shadeSpriteSheet(character.hitSheet);
         characters.set(character.id, character);
         model.hitDurations[character.id] = character.hit.duration / 1000;
       }));
@@ -204,20 +166,16 @@ export function createGame({ mount, playSound = () => {} }) {
       [sky, planetSheet] = await Promise.all([loadImage(assets.sky), loadImage(new URL(animation.planet.image, assets.sprites).href)]);
       await styleReady;
       resize();
-      updateStats();
     },
     start() {
-      root.classList.remove('space-aliens--ready');
       feedback = null;
       resize();
       model.start();
-      updateStats();
       draw();
     },
     frame(dt) {
       if (disposed) return;
       if (model.step(dt) === 'wave-start') playSound('start');
-      updateStats();
       draw();
     },
     shoot({ x, y }) {
@@ -235,7 +193,6 @@ export function createGame({ mount, playSound = () => {} }) {
         best = model.score;
         try { localStorage.setItem(BEST_KEY, String(best)); } catch {}
       }
-      updateStats();
       draw();
     },
     setQuality(value) { quality = value; resize(); },

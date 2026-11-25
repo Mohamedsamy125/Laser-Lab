@@ -2,6 +2,22 @@ import assert from 'node:assert/strict';
 import { readFile, stat } from 'node:fs/promises';
 import { AlienRound, animationFrame, maskContains, wrapPosition, waveRules, WAVE_BREAK_SECONDS } from '../dist/games/space-balloons/round.js';
 import { ArcadeGame } from '../dist/games/catalog.js';
+import { shadeSpritePixels } from '../dist/games/space-balloons/sprite-palette.js';
+
+// White eyes, teeth and hit flashes must leave room for a bright real laser;
+// the alpha used by hit masks must survive the gameplay color treatment.
+const palette = new Uint8ClampedArray([
+  255,255,255,255, 230,240,220,128, 240,50,70,255,
+  40,64,80,255, 250,250,250,0,
+]);
+const original = palette.slice();
+shadeSpritePixels(palette);
+for (let i=0;i<palette.length;i+=4) {
+  assert.equal(palette[i+3],original[i+3],'hit silhouettes keep their original alpha');
+  if(palette[i+3])assert(Math.max(...palette.slice(i,i+3))<=136,'gameplay highlights stay below the palette ceiling');
+}
+assert.deepEqual([...palette.slice(12,16)],[40,64,80,255],'dark shading stays intact');
+assert(palette[0]<palette[2],'white highlights become muted slate/teal');
 
 const base = new URL('../dist/games/space-balloons/assets/animations/', import.meta.url);
 const sprites = JSON.parse(await readFile(new URL('sprites.json', base), 'utf8'));
@@ -107,7 +123,21 @@ assert.equal(round.score, round.hits * 100);
 round.start();assert.equal(round.wave, 1);assert.equal(round.score, 0);assert.equal(round.shots, 0);assert.equal(round.elapsed, 0);
 round.step(.71);
 const clipped = round.aliens.at(-1);clipped.y = round.arena.y - 5;
-assert.equal(round.shoot(clipped.x, clipped.y, () => true), 'miss');
+assert.equal(round.shoot(clipped.x, clipped.y, () => true), 'ignored','outside the screen is not a playable point');
+
+// No HUD bands may cut off playable targets before the real screen edge.
+for (const [width,height] of [[1920,1080],[844,390],[390,844],[320,240]]) {
+  const edge = new AlienRound({random});edge.resize(width,height);edge.start();
+  assert.deepEqual(edge.arena,{x:0,y:0,width,height});
+  for (const [x,y] of [[1,height/2],[width-1,height/2],[width/2,1],[width/2,height-1]]) {
+    edge.aliens=[{...edge.spawn(),x,y}];
+    assert.equal(edge.shoot(x,y,()=>true),'hit','targets remain hittable along all four actual edges');
+  }
+  const actor={...edge.spawn(),x:width*.3,y:height*.7};edge.aliens=[actor];
+  edge.resize(height,width);
+  assert(Math.abs(actor.x/height-.3)<1e-9 && Math.abs(actor.y/width-.7)<1e-9,'rotation preserves relative target positions');
+  assert(actor.size<Math.min(width,height),'targets fit compact viewports');
+}
 
 const shared = new ArcadeGame({ createGame: () => ({ start: () => round.start(), frame: dt => round.step(dt), shoot() {}, dispose() {} }) }, {}, { onPause() {}, restart() {}, playSound() {} });
 await shared.load();shared.start();shared.render(100);shared.render(180);

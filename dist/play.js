@@ -1,6 +1,7 @@
 import { ArcadeGame, findGame, listGames } from './games/catalog.js';
 import { LaserCamera } from './laser/index.js';
-import { playGunshot, shootWithFeedback } from './shot-feedback.js';
+import { playGunshot, preloadGunshot, shootWithFeedback } from './shot-feedback.js';
+preloadGunshot();
 import { BASE_PALETTE, PALETTE_COLORS, PALETTE_PRESETS, normalizePalette, palettePreset } from './scene-palette.js?v=24';
 const $=id=>document.getElementById(id);let game=null,tracker=null,current=null,aim=null,marker=null,toastTimer,damageTimer,shotTimer,drawerWasPaused=false,calibrationWasMenu=false,failed=false,audio=null;
 const requestedSlug = new URLSearchParams(location.search).get('game') || 'robot-outbreak';
@@ -71,7 +72,7 @@ sceneLookToggle.onclick=()=>{
   applySceneLook();remember();
   toast(sceneLook.selectedOptions[0].textContent);
 };
-function unlockAudio(){try{if(!audio){const C=window.AudioContext||window.webkitAudioContext;if(C)audio=new C();}audio?.resume();}catch{}}
+function unlockAudio(){try{if(!audio){const C=window.AudioContext||window.webkitAudioContext;if(C)audio=new C();}if(audio){audio.resume();preloadGunshot(audio);}}catch{}}
 function sound(name){
   if(!$('sound').checked||!audio||audio.state!=='running')return;
   if(name==='shot'){playGunshot(audio);return;}
@@ -92,7 +93,10 @@ function update(s){
     $('resultPanel').hidden=false;text('resultEyebrow',s.state==='won'?'CONTAINMENT RESTORED':'SYSTEM OFFLINE');text('resultTitle',s.state==='won'?'تم تأمين المعمل.':'خرجت الروبوتات عن السيطرة');text('resultScore',s.score);text('resultKills',s.kills);text('resultAccuracy',(s.shots?Math.round(s.hits/s.shots*100):0)+'%');
   }
 }
-function start(){if(!game||failed||game.state==='loading')return;remember();unlockAudio();$('menu').hidden=true;$('resultPanel').hidden=true;$('pausePanel').hidden=true;document.body.classList.remove('menu-open');game.start(settings());}
+function setControlsOpen(open){document.body.classList.toggle('player-controls-open',open);$('playControls').setAttribute('aria-expanded',String(open));}
+$('playControls').onclick=()=>setControlsOpen($('playControls').getAttribute('aria-expanded')!=='true');
+$('reloadTool').onclick=()=>{game?.reload();setControlsOpen(false);};
+function start(){if(!game||failed||game.state==='loading')return;remember();unlockAudio();setControlsOpen(false);$('menu').hidden=true;$('resultPanel').hidden=true;$('pausePanel').hidden=true;document.body.classList.remove('menu-open');game.start(settings());}
 function openSettings(){
   if(!$('drawer').hidden)return;drawerWasPaused=game?.paused||false;$('drawer').hidden=false;$('drawer').querySelector('.drawer-body').scrollTop=0;tracker.preview=true;tracker.loadCV();
   if(game&&!['ready','won','lost','finished','error','loading'].includes(game.state))game.pause(true);$('pausePanel').hidden=true;
@@ -102,10 +106,10 @@ function openCameraSettings(){
   if(!tracker.stream&&!tracker.demo&&!tracker.opening)tracker.start();
 }
 function closeSettings(){
-  remember();$('drawer').hidden=true;tracker.preview=false;
+  remember();$('drawer').hidden=true;tracker.preview=false;setControlsOpen(false);
   if(game&&!drawerWasPaused&&!tracker.calibrating&&!tracker.captureAt&&!tracker.manual)game.pause(false);
 }
-function togglePause(){if(!game||['ready','won','lost','finished','error','loading'].includes(game.state))return;game.pause(!game.paused);}
+function togglePause(){if(!game||['ready','won','lost','finished','error','loading'].includes(game.state))return;setControlsOpen(false);game.pause(!game.paused);}
 function showError(error){
   failed=true;console.error(error);if(/WebGL|context/i.test(error.message)&&!current){$('setupMenu').disabled=true;$('loadStatus').textContent='شغّل اللعبة على متصفح بيدعم WebGL. إعداد الكاميرا ومختبر التتبّع متاحين.';$('loadProgress').style.width='100%';return;}$('menu').hidden=true;$('errorPanel').hidden=false;$('waveBanner').hidden=true;
   $('errorMessage').textContent=/WebGL|context/i.test(error.message)?'فعّل تسريع الرسوميات، أو جرّب Chrome / Safari على جهاز بيدعم WebGL. اختبار الكاميرا متاح من الزر تحت.':'تعذّر تحميل أو تشغيل المرحلة. أعد تحميل الصفحة. '+error.message;
@@ -137,7 +141,7 @@ $('cancelCapture').onclick=()=>{tracker.calibrating=false;tracker.captureAt=0;ca
 $('renderQuality').onchange=()=>{game?.setQuality($('renderQuality').value);remember();};
 $('start').onclick=openCameraSettings;$('restart').onclick=start;$('restartPause').onclick=start;$('settings').onclick=openSettings;$('cameraPreview').onclick=openCameraSettings;$('errorSetup').onclick=openCameraSettings;$('setupMenu').onclick=start;$('resultSetup').onclick=openSettings;$('closeSettings').onclick=closeSettings;$('pause').onclick=togglePause;$('resume').onclick=()=>game?.pause(false);$('reload').onclick=()=>game?.reload();
 $('fullscreen').onclick=async()=>{
-  unlockAudio();const root=document.documentElement;
+  unlockAudio();setControlsOpen(false);const root=document.documentElement;
   try{if(document.fullscreenElement||document.webkitFullscreenElement){await(document.exitFullscreen?.()||document.webkitExitFullscreen?.());return;}const request=root.requestFullscreen||root.webkitRequestFullscreen;if(request){await request.call(root);return;}}catch{/* Fall back to filling the browser viewport. */}
   document.body.classList.toggle('fullscreen-layout');toast('تم تكبير العرض داخل المتصفح؛ إخفاء شريط المتصفح حسب دعم الجهاز.');
 };

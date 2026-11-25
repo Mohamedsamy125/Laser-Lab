@@ -79,3 +79,16 @@
 .arcade-game .menu-content>.primary,.arcade-game .menu-content>.secondary{font-size:14px;min-height:45px}
 .arcade-game .menu-note{text-align:right;font-size:12px}
 @media(max-height:430px){.arcade-game .menu-content{padding-block:50px 14px}.arcade-game #menuTitle{font-size:32px;margin:7px 0}.arcade-game .menu-description{font-size:13px;line-height:1.7;margin-bottom:10px}.arcade-game .menu-content>.primary,.arcade-game .menu-content>.secondary{min-height:37px;font-size:13px}.arcade-game .load-track{margin-top:10px}.arcade-game .library-return{bottom:22px}}
+
+/* Every game uses the full inner frame, with one menu button during play. */
+.play-controls{display:none}
+.quiet-player .playfield{inset:0}
+.quiet-player .inner-rim{border:0}
+.quiet-player .perf-hud,.quiet-player .wave-info,.quiet-player .hud-bottom,
+.quiet-player .wave-banner,.quiet-player .shot-label{display:none}
+.quiet-player:not(.menu-open) .wordmark{display:none}
+.quiet-player:not(.menu-open) .hud-top{inset:0 0 auto auto;width:max-content;padding:8px;gap:7px;background:none;flex-direction:column;align-items:flex-end}
+.quiet-player:not(.menu-open) .play-controls{display:grid;color:#50676c;background:#0a1b25a8;border-color:#29414a;pointer-events:auto}
+.quiet-player:not(.menu-open):not(.player-controls-open) .tools{display:none}
+.quiet-player:not(.menu-open) .tools{padding:5px;background:#0a1b25ed;border-radius:4px;max-width:calc(100vw - 60px);flex-wrap:wrap;justify-content:flex-end}
+.arcade-game #reloadTool{display:none}

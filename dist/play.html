@@ -4,7 +4,7 @@
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#07151d">
 <title>Laser Lab · Robot Outbreak</title><meta name="description" content="لعبة موجات روبوتات ثلاثية الأبعاد، بالليزر وكاميرا الموبايل أو بالماوس واللمس."><link rel="icon" href="data:,"><link rel="stylesheet" href="./game.css?v=library-1">
 </head>
-<body class="menu-open">
+<body class="menu-open quiet-player">
 <main id="playfield" class="playfield" aria-label="ساحة اللعب">
  <div id="gameMount" hidden></div>
  <canvas id="world" aria-label="المرحلة ثلاثية الأبعاد"></canvas><canvas id="aim" aria-hidden="true"></canvas>
@@ -12,7 +12,8 @@
  <header class="hud-top">
   <div class="wordmark" dir="ltr"><span class="mark">⫴</span><span>LASER<span class="thin">LAB</span><small id="gameWordmark">ROBOT OUTBREAK</small></span></div>
   <div class="wave-info"><span id="location">قاعة المعايرة</span><strong dir="ltr">WAVE <b id="wave">01</b><span> / 05</span></strong></div>
-  <nav class="tools"><a href="./" class="icon" aria-label="قائمة الألعاب" title="قائمة الألعاب">⌂</a><button id="cameraPreview" class="icon camera-live" aria-label="الكاميرا متوقفة — فتح المعاينة" title="فتح الكاميرا ومعاينتها">◎</button><button id="pause" class="icon" aria-label="إيقاف مؤقت" title="إيقاف مؤقت">Ⅱ</button><button id="sceneLookToggle" class="icon" aria-label="مظهر المشهد" title="مظهر المشهد">◐</button><button id="fullscreen" class="icon" aria-label="ملء الشاشة" title="ملء الشاشة">⛶</button><button id="settings" class="icon" aria-label="الكاميرا والإعدادات" title="الكاميرا والإعدادات">⚙︎</button></nav>
+  <button id="playControls" class="icon play-controls" aria-label="قائمة اللعب" aria-expanded="false" aria-controls="playTools" title="قائمة اللعب">☰</button>
+  <nav id="playTools" class="tools"><a href="./" class="icon" aria-label="قائمة الألعاب" title="قائمة الألعاب">⌂</a><button id="cameraPreview" class="icon camera-live" aria-label="الكاميرا متوقفة — فتح المعاينة" title="فتح الكاميرا ومعاينتها">◎</button><button id="pause" class="icon" aria-label="إيقاف مؤقت" title="إيقاف مؤقت">Ⅱ</button><button id="reloadTool" class="icon" aria-label="إعادة التعبئة" title="إعادة التعبئة · R">↻</button><button id="sceneLookToggle" class="icon" aria-label="مظهر المشهد" title="مظهر المشهد">◐</button><button id="fullscreen" class="icon" aria-label="ملء الشاشة" title="ملء الشاشة">⛶</button><button id="settings" class="icon" aria-label="الكاميرا والإعدادات" title="الكاميرا والإعدادات">⚙︎</button></nav>
  </header>
  <div id="waveBanner" class="wave-banner" hidden><span id="bannerLabel">استعد للموجة</span><strong id="bannerNumber">3</strong><small id="bannerSub"></small></div>
  <div class="hud-bottom">

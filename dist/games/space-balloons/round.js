@@ -58,11 +58,8 @@ export class AlienRound {
     const previous = this.arena;
     this.width = Math.max(1, width);
     this.height = Math.max(1, height);
-    const compact = height < 430;
-    const top = Math.min(height * .25, compact ? 60 : 88);
-    const bottom = Math.min(height * .31, compact ? 94 : 118);
-    this.arena = { x: 10, y: top, width: Math.max(1, width - 20), height: Math.max(1, height - top - bottom) };
-    this.spriteSize = Math.max(88, Math.min(170, Math.min(width, height) * .25));
+    this.arena = { x: 0, y: 0, width: this.width, height: this.height };
+    this.spriteSize = Math.min(170, Math.min(this.width, this.height) * .25);
     if (previous) for (const entity of [...this.aliens, ...this.effects]) {
       entity.x = (entity.x - previous.x) / previous.width * this.arena.width + this.arena.x;
       entity.y = (entity.y - previous.y) / previous.height * this.arena.height + this.arena.y;

@@ -1,0 +1,80 @@
+{
+  "characters": [
+    {
+      "file": "assets/characters/ninja.png",
+      "role": "الشخصية الأصلية ومعاينة اللعبة"
+    }
+  ],
+  "animations": [
+    {
+      "file": "assets/animations/Ninja_Idle_Sheet.png",
+      "role": "6 فريمات وقوف وتنفس"
+    },
+    {
+      "file": "assets/animations/Ninja_Run_Sheet.png",
+      "role": "8 فريمات جري، 720ms"
+    },
+    {
+      "file": "assets/animations/Ninja_Jump_Sheet.png",
+      "role": "8 فريمات قفز ثابتة على خط القدم؛ مسار القفزة من اللعبة"
+    },
+    {
+      "file": "assets/animations/animation_timing.json",
+      "role": "توقيت الأنيميشن وخط القدم 460px واتجاه الرسومات الأصلي"
+    }
+  ],
+  "environments": [
+    {
+      "file": "assets/environments/ground_flat.png",
+      "role": "قطع أرض ودرجات وشجر خلفي من الملفات المقدمة"
+    },
+    {
+      "file": "assets/environments/step_low.png",
+      "role": "قطع أرض ودرجات وشجر خلفي من الملفات المقدمة"
+    },
+    {
+      "file": "assets/environments/step_medium.png",
+      "role": "قطع أرض ودرجات وشجر خلفي من الملفات المقدمة"
+    },
+    {
+      "file": "assets/environments/step_high.png",
+      "role": "قطع أرض ودرجات وشجر خلفي من الملفات المقدمة"
+    },
+    {
+      "file": "assets/environments/tree_straight.png",
+      "role": "قطع أرض ودرجات وشجر خلفي من الملفات المقدمة"
+    },
+    {
+      "file": "assets/environments/tree_leaning.png",
+      "role": "قطع أرض ودرجات وشجر خلفي من الملفات المقدمة"
+    },
+    {
+      "file": "assets/environments/tree_stump.png",
+      "role": "قطع أرض ودرجات وشجر خلفي من الملفات المقدمة"
+    },
+    {
+      "file": "assets/environments/woodland-fog.png",
+      "role": "صورة الضباب الزيتي المقدمة، خلفية الغابة مع انجراف هادئ"
+    }
+  ],
+  "textures": [
+    {
+      "file": "assets/textures/barrier_wood.png",
+      "role": "حاجز قابل للتدمير بالتصويب"
+    },
+    {
+      "file": "assets/textures/barrier_crates.png",
+      "role": "حاجز قابل للتدمير بالتصويب"
+    },
+    {
+      "file": "assets/textures/barrier_stone.png",
+      "role": "حاجز قابل للتدمير بالتصويب"
+    },
+    {
+      "file": "assets/textures/barrier_logs.png",
+      "role": "حاجز قابل للتدمير بالتصويب"
+    }
+  ],
+  "audio": [],
+  "images": []
+}

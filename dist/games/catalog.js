@@ -1,10 +1,12 @@
 import robotOutbreak from './robot-outbreak/manifest.js';
 import game_space_balloons from './space-balloons/manifest.js';
+import game_ninja_trail from './ninja-trail/manifest.js';
 // GAME_IMPORTS — added by npm run game:new
 
 const entries = [
   robotOutbreak,
   game_space_balloons,
+  game_ninja_trail,
   // GAME_ENTRIES — added by npm run game:new
 ];
 const games = new Map();

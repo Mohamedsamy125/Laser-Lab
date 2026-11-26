@@ -7,7 +7,7 @@
     "dev": "node scripts/serve.mjs",
     "start": "node scripts/serve.mjs",
     "check": "node scripts/check.mjs",
-    "test": "node scripts/verify-game.mjs && node scripts/verify-tracking.mjs && node scripts/verify-camera.mjs && node scripts/verify-capture-flow.mjs && node scripts/verify-vision-channel.mjs && node scripts/verify-debug.mjs && node scripts/verify-arcade.mjs && node scripts/verify-platform.mjs && node scripts/verify-shared-laser.mjs && node scripts/verify-space-aliens.mjs",
+    "test": "node scripts/verify-game.mjs && node scripts/verify-tracking.mjs && node scripts/verify-camera.mjs && node scripts/verify-capture-flow.mjs && node scripts/verify-vision-channel.mjs && node scripts/verify-debug.mjs && node scripts/verify-arcade.mjs && node scripts/verify-platform.mjs && node scripts/verify-shared-laser.mjs && node scripts/verify-space-aliens.mjs && node scripts/verify-ninja-trail.mjs",
     "build": "npm run check",
     "game:new": "node scripts/new-game.mjs"
   }
